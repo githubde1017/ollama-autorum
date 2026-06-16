@@ -1,0 +1,8 @@
+# 忽略環境設定檔與系統生成的臨時檔
+ollama.env
+*.log
+*.tmp
+# 忽略 IDE 設定檔
+.vscode/
+.idea/
+.DS_Store

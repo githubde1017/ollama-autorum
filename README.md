@@ -1,81 +1,74 @@
-# WSL 自動化 Ollama 啟動流程  
-## ✨ 三句亮點摘要
-1. 一鍵啟動腳本，環境變數自動套用。  
-2. 提供 systemd 服務檔，支援 WSL 開機自動啟動。  
-3. 清楚的專案結構，方便團隊快速複製與維護。  
+這是一份為你的專案量身打造的 `README.md` 內容。這份文件遵循 DevOps 標準，幫助其他人快速理解專案目的，同時確保資安規範（環境與路徑分離）。
+
+你可以直接將以下內容複製到 `README.md` 檔案中：
 
 ---
 
-# WSL Automation for Ollama  
-## ✨ Highlights
-1. One‑click startup script with environment variables pre‑configured.  
-2. Systemd service file for auto‑start on WSL boot.  
-3. Clear project structure for easy replication and maintenance.  
+# Ollama Auto-Run (Linux/WSL2)
 
----
+這是一個為 Linux (及 WSL2) 環境設計的自動化部署專案，用於將 **Ollama** 服務設定為系統常駐程式，並確保其開機自動執行且穩定運行。
 
-## 📂 專案結構 (Project Structure)
-```
-wsl-automation/
- ├── README.md                        # 專案概述與快速上手指南 (Project overview and quick start guide)
- ├── start-ollama.sh                  # 啟動 Ollama 的 Shell 腳本 (Shell script to start Ollama)
- ├── systemd/
- │    └── ollama.service              # systemd 服務檔，支援自動啟動 (Systemd service file for auto-start)
- ├── docs/
- │    └── usage.md                    # 詳細操作手冊 (Detailed usage guide)
- ├── .github/
- │    ├── ISSUE_TEMPLATE/
- │    │    └── bug_report.md          # Issue 模板 (Issue template)
- │    ├── PULL_REQUEST_TEMPLATE.md    # PR 模板 (Pull Request template)
- │    └── workflows/
- │         └── ci.yml                 # GitHub Actions CI/CD 工作流程 (GitHub Actions CI/CD workflow)
- ├── .gitignore                       # 忽略暫存檔案與日誌 (Ignore temporary files and logs)
- ├── LICENSE                          # 授權條款 (MIT License)
- ├── CONTRIBUTING.md                  # 協作指南 (Contributing guide)
- ├── CHANGELOG.md                     # 版本更新紀錄 (Changelog)
- └── example.env                      # 範例環境變數檔 (Sample environment variables file)
-```
+## 專案特性
 
----
+* **資安導向**：採用配置與執行邏輯分離的設計，不會在程式碼中硬寫任何路徑。
+* **部署簡單**：標準化的自動化安裝腳本。
+* **高可維護性**：所有的環境參數均集中在 `/etc/ollama.env` 中，易於管理。
 
-## 🚀 快速開始 (Quick Start)
+## 安裝步驟
 
-### 1. 複製專案 (Clone the repository)
+### 1. 準備環境檔案
+
+請從範本建立系統級環境設定檔：
+
 ```bash
-git clone https://github.com/your-username/wsl-automation.git
-cd wsl-automation
+sudo cp ollama.env.example /etc/ollama.env
+
 ```
 
-### 2. 設定腳本 (Setup script)
+### 2. 設定環境參數
+
+使用編輯器修改 `/etc/ollama.env`，填入你的實際環境資訊：
+
 ```bash
-chmod +x start-ollama.sh
+sudo nano /etc/ollama.env
+
 ```
 
-### 3. 安裝 systemd 服務 (Install systemd service)
-```bash
-sudo cp systemd/ollama.service /etc/systemd/system/
-sudo systemctl daemon-reload
-sudo systemctl enable ollama.service
-sudo systemctl start ollama.service
+請確認檔案中包含以下變數（範例）：
+
+```text
+OLLAMA_USER=你的使用者名稱
+OLLAMA_WORK_DIR=/絕對路徑/到/你的專案目錄
+OLLAMA_HOST=0.0.0.0:11434
+OLLAMA_FLASH_ATTENTION=1
+
 ```
 
-### 4. 驗證狀態 (Verify status)
+### 3. 執行安裝
+
+執行專案內的安裝腳本，系統會自動配置 Systemd 服務：
+
 ```bash
-systemctl status ollama.service
+sudo chmod +x install.sh
+sudo ./install.sh
+
 ```
+
+### 4. 服務管理
+
+安裝完成後，Ollama 服務將會隨開機自動啟動。你可以使用以下標準指令管理服務：
+
+* **檢查狀態**: `systemctl status ollama`
+* **查看日誌**: `journalctl -u ollama -f`
+* **重啟服務**: `sudo systemctl restart ollama`
 
 ---
 
-## 📖 文件 (Documentation) 
-  - 狀態檢查 / Check status  
-  - 停止服務 / Stop service  
-  - 重啟服務 / Restart service  
-  - 開機自動啟動 / Enable auto-start  
+## 資安聲明
 
----
+本專案嚴格遵守「配置與程式碼分離」原則。請確保 `/etc/ollama.env` 檔案權限已設定為適當的限制（建議 `sudo chmod 644 /etc/ollama.env`），以防止敏感路徑資訊外洩。
 
-## 📌 協作 (Contributing)  
-- 使用 Issue 與 PR 模板，保持專案流程一致  
+## 開發者建議
 
----
+* 若要進行專案備份或上傳至 GitHub，請確認已在 `.gitignore` 中加入 `ollama.env`，以防止個人環境資訊外洩。
 

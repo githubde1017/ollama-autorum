@@ -1,28 +1,27 @@
 #!/bin/bash
-# 一鍵安裝與啟動 Ollama 服務 (安全寫法)
-
 set -e
-
-# 自動偵測專案根目錄
+# 取得專案所在目錄
 PROJECT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-echo "🚀 開始安裝 Ollama 自動啟動服務..."
+echo "🚀 開始安裝 Ollama 服務..."
 
-# 設定腳本權限
-chmod +x "$PROJECT_DIR/start-ollama.sh"
+# 1. 確保 /etc/ollama.env 存在 (確保資安與配置分離)
+if [ ! -f "/etc/ollama.env" ]; then
+    echo "⚠️ 警告: /etc/ollama.env 不存在，請先建立並設定該檔案。"
+    exit 1
+fi
 
-# 複製 systemd 服務檔到系統目錄
-sudo cp "$PROJECT_DIR/systemd/ollama.service" /etc/systemd/system/ollama.service
+# 2. 安裝 systemd 服務檔案
+# 直接複製，不再使用 sed 替換 (因為我們已透過環境變數解耦)
+SERVICE_PATH="/etc/systemd/system/ollama.service"
+sudo cp "$PROJECT_DIR/systemd/ollama.service" "$SERVICE_PATH"
 
-# 自動替換 WorkingDirectory 為專案路徑
-sudo sed -i "s|WorkingDirectory=.*|WorkingDirectory=$PROJECT_DIR|" /etc/systemd/system/ollama.service
+# 3. 設定正確權限
+sudo chmod 644 "$SERVICE_PATH"
 
-# 重新載入 systemd
+# 4. 重新載入並啟動
 sudo systemctl daemon-reload
-
-# 啟用並啟動服務
 sudo systemctl enable ollama.service
 sudo systemctl restart ollama.service
 
-echo "✅ 安裝完成！請使用以下指令檢查狀態："
-echo "   systemctl status ollama.service"
+echo "✅ 安裝成功！"
