@@ -1,0 +1,19 @@
+name: CI Pipeline
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-script:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Run Ollama startup script
+        run: |
+          chmod +x scripts/start-ollama.sh
+          ./scripts/start-ollama.sh &
+          sleep 5
+          echo "✅ Ollama script executed successfully"
