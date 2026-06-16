@@ -7,3 +7,15 @@ Environment="HOME=%h"
 
 # 讓 Shell 去解析變數，這樣服務檔本身就不用包含任何硬寫的絕對路徑
 ExecStart=/bin/bash -c 'source /etc/ollama.env && /bin/bash ${OLLAMA_WORK_DIR}/start-ollama.sh'
+
+# 限制 CPU 使用率，避免 Ollama 卡死系統
+CPUQuota=80%
+# 限制記憶體使用上限 (例如 16GB)
+MemoryLimit=16G
+# 確保服務擁有足夠的權限但又被隔離
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+# 在服務崩潰後，等待 10 秒再重啟
+RestartSec=10
+# 若 60 秒內重啟超過 5 次，則徹底停止，避免 CPU 被佔滿
+StartLimitBurst=5
+StartLimitIntervalSec=60
